@@ -13,14 +13,20 @@ exp.add_data_variable_names(['session', 'trial', 'direction', 'congruency',
 
 control.set_develop_mode()
 control.initialize(exp)
-# mac用户：如遇路径错误，请将此行替代为stimuli.xlsx的所在路径
+control.start(subject_id=random.randint(1, 999))
+
+# ATTENTION: mac user：if path error，replace this lin with the path of stimuli.xlsx
 current_path = os.path.dirname(os.path.abspath(__file__))
+
+# Assign the hand
+hand = "LEFT" if exp.subject % 2 == 1 else "RIGHT"
 
 # Session, Trial
 n_session_RS = 4
 n_trial_RS = 16
 n_session_FL = 2
-n_trial_FL = 32
+n_block_FL = 4
+n_trial_FL = 8
 
 # Key
 YES_KEY = K_y
@@ -34,24 +40,30 @@ STIMULUS_DURATION = 2000
 BLANK_DURATION = 200
 
 # Inter-trial Interval(s)
-ITI_RS = [120, 150]    # ITI for RS session [12000, 15000]
-ITI_FL = [450, 750]      # ITI for FL session [4500, 7500]
+ITI_RS = [120, 150]     # ITI for RS session [12000, 15000]
+ITI_FL = [450, 750]     # ITI for FL session [4500, 7500]
+
+# Inter-block Interval(s)
+IBI_FL = 1500          # IBI for FL session 15 s
 
 """ Instructions """
 INSTR_START =  f"""
 In the following experiment, you will see English sentences and arithmetic expressions.
 
-Please make a judgment for each stimulus presented:
+Please make a judgment for each stimulus:
 - For sentences: decide whether it is semantically natural (Natural: 'y' / Unnatural: 'n').
 - For arithmetics: decide whether the result is a multiple of ten (e.g. 10, 20, 30...) (Yes: 'y' / No: 'n').
 
 Please respond as quickly and accurately as possible within the 2-second presentation period.
+
+PLEASE press button with your {hand} hand.
 
 Press SPACE to begin.
 """
 INSTR_MID = """You have finished one session of the experiment, well done! \n Press SPACE to continue."""
 INSTR_END = """Well done! You finish all!!!\n Press SPACE to quit the experiment."""
 ITI_WAIT = ''
+IBI_WAIT = 'PLEASE WAIT :)'
 
 INSTRUCTION_COLOR = [102, 102, 102]
 
@@ -159,7 +171,43 @@ def derangements_RS(df):
 
 def derangements_FL(df):
     # shuffle stimli for Functional Localizer Sessions 
-    df_shuffled = df.sample(frac=1).reset_index(drop=True)
+    # df_shuffled = df.sample(frac=1).reset_index(drop=True)
+    sess_tag = ['coherent', 'incoherent']
+    random.shuffle(sess_tag)
+
+    sessions = {}
+    for coh in sess_tag:
+        # Step 1: select one coherency subset
+        df_sub = df[df['coherency'] == coh].reset_index(drop=True)
+
+        # Step 2: divide into 4 subgroups by (type, branch)
+        conditions = [
+            ('language', 'LB'),
+            ('language', 'RB'),
+            ('arithmetic', 'LB'),
+            ('arithmetic', 'RB')
+        ]
+        
+        groups = []
+        for t, b in conditions:
+            group = (
+                df_sub[(df_sub['type'] == t) & (df_sub['branch'] == b)]
+                .sample(frac=1, random_state=None)  # shuffle within group
+                .reset_index(drop=True)
+            )
+            groups.append(group)
+        
+        # Step 3: shuffle group order
+        random.shuffle(groups)
+
+        # Step 4: concatenate all groups for this session
+        session_df = pd.concat(groups, ignore_index=True)
+
+        # Save session
+        sessions[coh] = session_df
+
+    df_shuffled = pd.concat([sessions[sess_tag[0]], sessions[sess_tag[1]]], ignore_index=True)
+
     return df_shuffled
 
 def timed_draw(*stims):
@@ -206,6 +254,12 @@ def present_ITI(iti_win, text = ''):
     wait_text = stimuli.TextLine(text=text)
     wait_text.present()
     exp.clock.wait(iti)
+
+def present_IBI(t, text = ''):
+    # prensent the inter-trial interval
+    wait_text = stimuli.TextLine(text=text)
+    wait_text.present()
+    exp.clock.wait(t)
 
 """ Trial """
 def run_trial_RS(stims, session = '', trial = ''):
@@ -323,7 +377,6 @@ def run_trial_FL(stims, session = '', trial = '', direction = '', coherency = ''
     present_ITI(ITI_FL)
 
 # -------- Main ------------
-control.start(subject_id=random.randint(1, 999))
 
 # generate stimuli sequence
 stim_RS = derangements_RS(stimulus_df)
@@ -349,9 +402,13 @@ row = 0
 for sess_id in range(1, n_session_FL + 1):
     instructions = stimuli.TextLine(text=f'Session {n_session_RS+sess_id} starts soon. Press SPACE to continue.', text_colour=INSTRUCTION_COLOR)
     instructions.present()
-    for trial_id in range(1, n_trial_FL + 1):
-        run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
-        row = row + 1
+    for block in range(1, n_block_FL+1):
+        for trial_id in range(1, n_trial_FL + 1):
+            run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
+            # print(stim_FL.iloc[row]['text'])
+            row = row + 1
+
+        present_IBI(IBI_FL, text = IBI_WAIT)
 
     if not sess_id == n_session_FL:
         present_instructions(INSTR_MID)
