@@ -22,12 +22,12 @@ current_path = os.path.dirname(os.path.abspath(__file__))
 hand = "LEFT" if exp.subject % 2 == 1 else "RIGHT"
 
 # Session, Trial
-n_session_RS = 4
-n_trial_RS = 16
+n_session_RS = 1    # 4
+n_trial_RS = 4      # 16
 
-n_session_FL = 2
-n_block_FL = 4
-n_trial_FL = 8
+n_session_FL = 1    # 2
+n_block_FL = 1      # 4
+n_trial_FL = 8      # 8
 
 # Key
 YES_KEY = K_y
@@ -41,8 +41,8 @@ STIMULUS_DURATION = 2000
 BLANK_DURATION = 200
 
 # Inter-trial Interval(s)
-ITI_RS = [12000, 15000]     # ITI for RS session [12000, 15000]
-ITI_FL = [4500, 7500]     # ITI for FL session [4500, 7500]
+ITI_RS = [3000, 4000]     # ITI for RS session [12000, 15000]
+ITI_FL = [3000, 4000]     # ITI for FL session [4500, 7500]
 
 # Inter-block Interval(s)
 IBI_FL = 15000          # IBI for FL session 15 s
@@ -64,7 +64,7 @@ Press SPACE to begin.
 INSTR_MID = """You have finished one session of the experiment, well done! \n Press SPACE to continue."""
 INSTR_END = """Well done! You finish all!!!\n Press SPACE to quit the experiment."""
 ITI_WAIT = '^_^'
-IBI_WAIT = 'PLEASE WAIT :)'
+IBI_WAIT = '^_^'
 
 INSTRUCTION_COLOR = [102, 102, 102]
 
@@ -395,21 +395,21 @@ for sess_id in range(1, n_session_RS + 1):
     present_instructions(INSTR_MID)
 
 # 2 functional localizer sessions
-row = 0
-for sess_id in range(1, n_session_FL + 1):
-    instructions = stimuli.TextLine(text=f'Session {n_session_RS+sess_id} starts soon. Press SPACE to continue.', text_colour=INSTRUCTION_COLOR)
-    instructions.present()
-    exp.keyboard.wait(K_SPACE)
-    for block in range(1, n_block_FL+1):
-        for trial_id in range(1, n_trial_FL + 1):
-            run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
-            # print(stim_FL.iloc[row]['text'])
-            row = row + 1
+# row = 0
+# for sess_id in range(1, n_session_FL + 1):
+#     instructions = stimuli.TextLine(text=f'Session {n_session_RS+sess_id} starts soon. Press SPACE to continue.', text_colour=INSTRUCTION_COLOR)
+#     instructions.present()
+#     exp.keyboard.wait(K_SPACE)
+#     for block in range(1, n_block_FL+1):
+#         for trial_id in range(1, n_trial_FL + 1):
+#             run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
+#             # print(stim_FL.iloc[row]['text'])
+#             row = row + 1
 
-        present_IBI(IBI_FL, text = IBI_WAIT)
+#         present_IBI(IBI_FL, text = IBI_WAIT)
 
-    if not sess_id == n_session_FL:
-        present_instructions(INSTR_MID)
+#     if not sess_id == n_session_FL:
+#         present_instructions(INSTR_MID)
 
 present_instructions(INSTR_END)
 
@@ -422,7 +422,7 @@ from expyriment.misc.data_preprocessing import read_datafile
 import pandas as pd
 
 # read .xpd 
-data, variables, subject_info, comments = read_datafile(f"data/experiment_{exp.subject}.xpd")
+data, variables, subject_info, comments = read_datafile(f"data/short demo_{exp.subject}.xpd")
 df = pd.DataFrame(data, columns=variables)
 print(df)
 
