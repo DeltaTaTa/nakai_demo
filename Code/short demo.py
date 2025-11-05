@@ -395,21 +395,21 @@ for sess_id in range(1, n_session_RS + 1):
     present_instructions(INSTR_MID)
 
 # 2 functional localizer sessions
- row = 0
- for sess_id in range(1, n_session_FL + 1):
-     instructions = stimuli.TextLine(text=f'Session {n_session_RS+sess_id} starts soon. Press SPACE to continue.', text_colour=INSTRUCTION_COLOR)
-     instructions.present()
-     exp.keyboard.wait(K_SPACE)
-     for block in range(1, n_block_FL+1):
-         for trial_id in range(1, n_trial_FL + 1):
-             run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
-             # print(stim_FL.iloc[row]['text'])
-             row = row + 1
+row = 0
+for sess_id in range(1, n_session_FL + 1):
+    instructions = stimuli.TextLine(text=f'Session {n_session_RS+sess_id} starts soon. Press SPACE to continue.', text_colour=INSTRUCTION_COLOR)
+    instructions.present()
+    exp.keyboard.wait(K_SPACE)
+    for block in range(1, n_block_FL+1):
+        for trial_id in range(1, n_trial_FL + 1):
+            run_trial_FL(stim_FL.iloc[row], session = f"FL{sess_id}", trial = trial_id)
+            # print(stim_FL.iloc[row]['text'])
+            row = row + 1
 
-         present_IBI(IBI_FL, text = IBI_WAIT)
+        present_IBI(IBI_FL, text = IBI_WAIT)
 
-     if not sess_id == n_session_FL:
-         present_instructions(INSTR_MID)
+    if not sess_id == n_session_FL:
+        present_instructions(INSTR_MID)
 
 present_instructions(INSTR_END)
 
