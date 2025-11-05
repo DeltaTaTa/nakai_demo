@@ -63,8 +63,8 @@ Press SPACE to begin.
 """
 INSTR_MID = """You have finished one session of the experiment, well done! \n Press SPACE to continue."""
 INSTR_END = """Well done! You finish all!!!\n Press SPACE to quit the experiment."""
-ITI_WAIT = '^_^'
-IBI_WAIT = 'PLEASE WAIT :)'
+ITI_WAIT = ''
+IBI_WAIT = ''
 
 INSTRUCTION_COLOR = [102, 102, 102]
 
