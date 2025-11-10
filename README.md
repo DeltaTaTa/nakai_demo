@@ -1,7 +1,7 @@
 # nakai_demo
 Repo of group project at CORE-1.
 
-Group members: Zhiyi Chen, Bihan Wang, Zhekun Zou, Yixuan ZHU & Mengting J.
+Group members: Zhiyi CHEN, Bihan WANG, Zhekun ZOU, Yixuan ZHU & Mengting JIANG
 
 Reference: https://doi.org/10.1038/s41598-018-31279-8
 
